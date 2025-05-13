@@ -1,59 +1,43 @@
 import tkinter as tk
 from tkinter import colorchooser
+import brush
+import canvas
 
-class ToolBar:
-    def __init__(self, parent, canvas, brush):
-        self.parent = parent
-        self.canvas = canvas
-        self.brush = brush
-        self._create_widgets()
+def create_toolbar(parent, cv):
+    """Create the toolbar with all controls."""
+    
+    # Create buttons
+    brush_color_btn = tk.Button(parent, text="Brush Color", 
+                              command=lambda: change_brush_color())
+    background_color_btn = tk.Button(parent, text="Background Color", 
+                                   command=lambda: change_background_color(cv))
+    
+    # Create size slider
+    brush_size = tk.Scale(parent, from_=1, to=100, length=500,
+                         label="Brush Size", command=change_brush_size)
+    brush_size.set(5)  # Default size
+    
+    # Layout widgets
+    brush_color_btn.grid(column=0, row=0)
+    background_color_btn.grid(column=0, row=1) 
+    brush_size.grid(column=0, row=2)
+    
+    # Set defaults
+    brush.change_size(brush_size.get())
+    brush.change_color("#000000")  # Default: black
 
-    def _create_widgets(self):
-        """Create all toolbar widgets"""
-        # Brush color button
-        self.brush_color_btn = tk.Button(
-            self.parent, 
-            text="Brush Color", 
-            command=self.change_brush_color
-        )
-        self.brush_color_btn.grid(column=0, row=0)
+def change_brush_color():
+    """Use colorchooser to set brush color."""
+    rgb_hex = colorchooser.askcolor()
+    if rgb_hex[1]:  # Check if not cancelled
+        brush.change_color(rgb_hex[1])
 
-        # Background color button  
-        self.bg_color_btn = tk.Button(
-            self.parent,
-            text="Background Color",
-            command=self.change_background_color
-        )
-        self.bg_color_btn.grid(column=0, row=1)
+def change_background_color(cv):
+    """Use colorchooser to set canvas background."""
+    rgb_hex = colorchooser.askcolor()
+    if rgb_hex[1]:  # Check if not cancelled
+        canvas.change_background_color(cv, rgb_hex[1])
 
-        # Brush size slider
-        self.brush_size = tk.Scale(
-            self.parent,
-            from_=1,
-            to=100,
-            length=500,
-            label="Brush Size",
-            command=self.change_brush_size
-        )
-        self.brush_size.set(5)  # Default size
-        self.brush_size.grid(column=0, row=2)
-
-    def change_brush_color(self):
-        """Use color chooser to set brush color"""
-        rgb_hex = colorchooser.askcolor()
-        color_hex = rgb_hex[1]
-        self.brush.change_color(color_hex)
-
-    def change_background_color(self):
-        """Use color chooser to set canvas background"""
-        rgb_hex = colorchooser.askcolor()
-        color_hex = rgb_hex[1]
-        self.canvas.change_background_color(color_hex)
-
-    def change_brush_size(self, new_size):
-        """Sets brush size to slider value"""
-        self.brush.change_size(int(new_size))
-
-    def get_brush_size(self):
-        """Get current brush size value"""
-        return self.brush_size.get()
+def change_brush_size(new_size):
+    """Update brush size from slider."""
+    brush.change_size(int(new_size))
